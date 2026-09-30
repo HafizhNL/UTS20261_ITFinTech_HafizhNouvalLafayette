@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const paymentMethods = [
-  { id: "ewallet", label: "E-Wallet" },
-  { id: "bank_transfer", label: "Bank Transfer" },
+  { id: "ovo", label: "OVO" },
+  { id: "shopeepay", label: "ShopeePay" },
+  { id: "dana", label: "DANA" },
 ];
 
 type CheckoutSummary = {
@@ -30,7 +31,7 @@ export default function PaymentPage() {
     name: "",
     address: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("ewallet");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("ovo");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -236,7 +237,9 @@ export default function PaymentPage() {
           disabled={submitting || !checkout}
           onClick={confirmPayment}
         >
-          {submitting ? "Connecting to Xendit..." : "Confirm & Pay"}
+          {submitting
+            ? "Connecting to Xendit..."
+            : `Pay with ${paymentMethods.find((method) => method.id === paymentMethod)?.label}`}
         </button>
       </div>
     </div>

@@ -15,7 +15,13 @@ export type ShippingAddress = {
 	address: string;
 };
 
-export type PaymentMethod = "ewallet" | "bank_transfer";
+export type PaymentMethod = "ovo" | "shopeepay" | "dana";
+
+const xenditPaymentMethods: Record<PaymentMethod, string> = {
+	ovo: "OVO",
+	shopeepay: "SHOPEEPAY",
+	dana: "DANA",
+};
 
 export async function createXenditInvoice(
 	checkoutId: string,
@@ -26,7 +32,7 @@ export async function createXenditInvoice(
 		throw new Error("Invalid checkout id");
 	}
 
-	if (!["ewallet", "bank_transfer"].includes(paymentMethod)) {
+	if (!Object.hasOwn(xenditPaymentMethods, paymentMethod)) {
 		throw new Error("Invalid payment method");
 	}
 
@@ -49,12 +55,10 @@ export async function createXenditInvoice(
 		{ $set: { shippingAddress } }
 	);
 
-	await Payment.collection.updateOne(
-		{ checkoutId: checkoutObjectId },
-		{ $set: { shippingAddress: paymentShippingAddress, paymentMethod } }
-	);
-
-	const existingPayment = await Payment.findOne({ checkoutId }).lean();
+	const existingPayment = await Payment.findOne({
+		checkoutId,
+		paymentMethod,
+	}).lean();
 
 	if (existingPayment) {
 		return existingPayment;
@@ -72,6 +76,7 @@ export async function createXenditInvoice(
 			amount: checkout.total,
 			description: `Payment for checkout ${checkoutId}`,
 			invoice_duration: 86400,
+			payment_methods: [xenditPaymentMethods[paymentMethod]],
 			success_redirect_url: `${xenditConfig.appUrl}/payment/success?checkoutId=${checkoutId}`,
 			failure_redirect_url: `${xenditConfig.appUrl}/payment?checkoutId=${checkoutId}`,
 		}),

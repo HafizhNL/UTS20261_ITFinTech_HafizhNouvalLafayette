@@ -13,7 +13,7 @@ const PaymentSchema = new Schema(
 		amount: { type: Number, required: true },
 		paymentMethod: {
 			type: String,
-			enum: ["ewallet", "bank_transfer"],
+			enum: ["ovo", "shopeepay", "dana"],
 			required: true,
 		},
 		shippingAddress: {
