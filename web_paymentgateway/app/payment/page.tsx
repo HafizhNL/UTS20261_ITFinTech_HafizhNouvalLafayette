@@ -30,13 +30,14 @@ export default function PaymentPage() {
     name: "",
     address: "",
   });
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("ewallet");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("ewallet");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setCheckoutId(new URLSearchParams(window.location.search).get("checkoutId") || "");
+    setCheckoutId(
+      new URLSearchParams(window.location.search).get("checkoutId") || "",
+    );
   }, []);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function PaymentPage() {
     async function fetchCheckout() {
       try {
         const response = await fetch(
-          `/api/checkout?checkoutId=${encodeURIComponent(checkoutId)}`
+          `/api/checkout?checkoutId=${encodeURIComponent(checkoutId)}`,
         );
         const result = await response.json();
 
@@ -60,7 +61,7 @@ export default function PaymentPage() {
         setError(
           requestError instanceof Error
             ? requestError.message
-            : "Gagal mengambil checkout"
+            : "Gagal mengambil checkout",
         );
       }
     }
@@ -71,7 +72,7 @@ export default function PaymentPage() {
   const formatPrice = (price: number) => `Rp ${price.toLocaleString("id-ID")}`;
   const itemCount = checkout?.items.reduce(
     (total, item) => total + item.quantity,
-    0
+    0,
   );
 
   async function confirmPayment() {
@@ -110,29 +111,31 @@ export default function PaymentPage() {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "Gagal membuat transaksi"
+          : "Gagal membuat transaksi",
       );
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-sm border border-gray-300 bg-white text-gray-800">
+    <div className="mx-auto min-h-screen w-full max-w-sm bg-stone-50 text-stone-900 shadow-xl">
       {/* Header */}
-      <header className="relative flex items-center justify-center border-b border-gray-200 px-4 py-3">
+      <header className="sticky top-0 z-20 flex items-center justify-center border-b border-stone-200 bg-white/90 px-4 py-3 backdrop-blur">
         <button
-          className="absolute left-4 text-sm text-gray-600"
+          className="absolute left-4 rounded-full bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700 transition hover:bg-stone-200"
           onClick={() => router.push("/checkout")}
         >
           ‹ Back
         </button>
-        <h1 className="text-sm font-semibold">Secure Checkout</h1>
+        <h1 className="text-sm font-extrabold tracking-wide">
+          🔒 Secure Checkout<span className="text-rose-500">.</span>
+        </h1>
       </header>
 
-      <div className="space-y-6 px-4 py-4 text-sm">
+      <div className="space-y-4 px-4 py-4 text-sm">
         {/* Shipping address */}
-        <section>
-          <h2 className="mb-2 font-medium">Shipping Address</h2>
+        <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100">
+          <h2 className="mb-3 font-bold text-stone-900">Shipping Address</h2>
           <div className="space-y-2">
             <input
               value={shippingAddress.name}
@@ -143,7 +146,7 @@ export default function PaymentPage() {
                 })
               }
               placeholder="Nama penerima"
-              className="w-full rounded border border-gray-300 px-3 py-2 outline-none"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 outline-none transition placeholder:text-stone-400 focus:border-rose-400 focus:bg-white focus:ring-2 focus:ring-rose-100"
             />
             <textarea
               value={shippingAddress.address}
@@ -155,60 +158,81 @@ export default function PaymentPage() {
               }
               placeholder="Alamat lengkap"
               rows={3}
-              className="w-full rounded border border-gray-300 px-3 py-2 outline-none"
+              className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 outline-none transition placeholder:text-stone-400 focus:border-rose-400 focus:bg-white focus:ring-2 focus:ring-rose-100"
             />
           </div>
         </section>
 
         {/* Payment method */}
-        <section>
-          <h2 className="mb-2 font-medium">Payment Method</h2>
+        <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100">
+          <h2 className="mb-3 font-bold text-stone-900">Payment Method</h2>
           <div className="space-y-2">
             {paymentMethods.map((method) => (
-              <label key={method.id} className="flex items-start gap-2">
+              <label
+                key={method.id}
+                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-3 transition ${
+                  paymentMethod === method.id
+                    ? "border-rose-400 bg-rose-50 ring-2 ring-rose-100"
+                    : "border-stone-200 bg-white hover:bg-stone-50"
+                }`}
+              >
                 <input
                   type="radio"
                   name="payment"
                   value={method.id}
                   checked={paymentMethod === method.id}
                   onChange={() => setPaymentMethod(method.id)}
-                  className="mt-0.5"
+                  className="mt-0.5 accent-rose-500"
                 />
-                <span>{method.label}</span>
+                <span
+                  className={
+                    paymentMethod === method.id
+                      ? "font-medium text-stone-900"
+                      : "text-stone-700"
+                  }
+                >
+                  {method.label}
+                </span>
               </label>
             ))}
           </div>
         </section>
 
         {/* Order summary */}
-        <section>
-          <h2 className="mb-2 font-medium">Order Summary</h2>
-          <div className="space-y-1">
+        <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100">
+          <h2 className="mb-3 font-bold text-stone-900">Order Summary</h2>
+          <div className="space-y-2 text-stone-600">
             <div className="flex justify-between">
               <span>Item(s)</span>
               <span>{itemCount ?? "Loading..."}</span>
             </div>
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>{checkout ? formatPrice(checkout.subtotal) : "Loading..."}</span>
+              <span>
+                {checkout ? formatPrice(checkout.subtotal) : "Loading..."}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Tax</span>
               <span>{checkout ? formatPrice(checkout.tax) : "Loading..."}</span>
             </div>
-            <div className="flex justify-between font-semibold">
+            <div className="flex justify-between border-t border-dashed border-stone-200 pt-2 text-base font-bold text-stone-900">
               <span>Total</span>
-              <span>
+              <span className="text-rose-600">
                 {checkout ? formatPrice(checkout.total) : "Loading..."}
               </span>
             </div>
           </div>
         </section>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 ring-1 ring-red-100">
+            {error}
+          </p>
+        )}
 
         <button
-          className="w-full rounded-lg bg-gray-600 py-3 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-rose-500 py-3 font-semibold text-white shadow-md shadow-rose-200 transition hover:bg-rose-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           disabled={submitting || !checkout}
           onClick={confirmPayment}
         >

@@ -18,6 +18,10 @@ const ProductSchema = new Schema(
       type: String,
       required: true,
     },
+    category: {
+      type: String,
+      enum: ["Top", "Bottom", "Accessories"],
+    },
     image: {
       type: String,
       required: true,
